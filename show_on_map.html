@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet CSV Example with Clustering</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2);
+
+        // Add a tile layer to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Create a marker cluster group
+        var markers = L.markerClusterGroup();
+
+        // Function to add points to the marker cluster group
+        function addPoints(data) {
+            data.forEach(function(row) {
+                var lat = parseFloat(row.LAT);
+                var lng = parseFloat(row.LNG);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    var marker = L.marker([lat, lng]);
+                    markers.addLayer(marker);
+                }
+            });
+            map.addLayer(markers);
+        }
+
+        // Load and parse the CSV file
+        Papa.parse('exported_coordinates.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                addPoints(results.data);
+            }
+        });
+    </script>
+</body>
+</html>
